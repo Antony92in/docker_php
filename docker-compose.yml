@@ -1,0 +1,40 @@
+version: "3.7"
+
+services:
+  php8:
+    build: .
+    container_name: php8
+    volumes:
+      - ./www:/var/www
+    user: '1000'
+
+  mysql:
+    image: mysql
+    working_dir: /app
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./mysqldata:/var/lib/mysql
+    container_name: mysql
+
+  pma:
+    image: pma
+    working_dir: /app
+    environment:
+      PMA_HOST: mysql
+    ports:
+      - 8080:80
+    container_name: pma
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_server
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./hosts:/etc/nginx/conf.d
+      - ./www:/var/www
+      - ./logs/nginx:/var/log/nginx
+    links:
+      - php8
